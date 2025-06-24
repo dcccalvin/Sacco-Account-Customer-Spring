@@ -129,6 +129,30 @@ public class AccountService {
         }
     }
 
+    public EntityResponse deleteAccountById(Long id){
+        EntityResponse response= new EntityResponse();
+        try{
+            Optional<Account> checkId=accountRepository.findById(id);
+            if(checkId.isEmpty()){
+                response.setMessage("Account wih Id "+ id+"cannott be found");
+                response.setStatuscode(HttpStatus.NOT_FOUND.value());
+                response.setEntity("");
+            }
+            accountRepository.deleteById(id);
+            response.setEntity("account");
+            response.setStatuscode(HttpStatus.OK.value());
+            response.setMessage("Account Deleted Succesfully");
+            return response;
+
+        }catch (Exception e) {
+            log.error("Error while retrieving accounts: {}", e.getMessage(), e);
+            response.setMessage("ERROR: " + e.getMessage());
+            response.setEntity("");
+            response.setStatuscode(HttpStatus.BAD_REQUEST.value());
+            return response;
+        }
+    }
+
 
 
 
