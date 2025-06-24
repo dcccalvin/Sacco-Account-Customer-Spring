@@ -97,6 +97,38 @@ public class AccountService {
 
     }
 
+    public EntityResponse modifyAccountDetails(Account account){
+        EntityResponse response = new EntityResponse();
+        try{
+            Optional<Account> checkId = accountRepository.findById(account.getId());
+            if (checkId.isEmpty()){
+                response.setMessage("Account wih Id : "+account.getId()+" not found");
+                response.setStatuscode(HttpStatus.NOT_FOUND.value());
+                response.setEntity("");
+                return response;
+            }
+            else if (!customerClient.isMemberExists(account.getMemberNumber())) {
+                response.setMessage(" Member number not found in customer-service: " + account.getAccountNumber());
+                response.setStatuscode(HttpStatus.NOT_FOUND.value());
+                response.setEntity("");
+                return response;
+            }
+            account.setAccountNumber(generateAccountNumber(account.getProductCode(),account.getMemberNumber()));
+            response.setEntity(account);
+            response.setMessage("Account modified Succesffully");
+            response.setStatuscode(HttpStatus.OK.value());
+            return response;
+
+
+        } catch (Exception e) {
+            log.error("Error while retrieving accounts: {}", e.getMessage(), e);
+            response.setMessage("ERROR: " + e.getMessage());
+            response.setEntity("");
+            response.setStatuscode(HttpStatus.BAD_REQUEST.value());
+            return response;
+        }
+    }
+
 
 
 

@@ -60,6 +60,22 @@ public class AccountController {
         }
     }
 
+    @PutMapping("/modify")
+    public ResponseEntity<?> modifyAccount(@RequestBody Account account){
+        try {
+            EntityResponse res = accountService.modifyAccountDetails(account);
+            return ResponseEntity.ok(res);
+        }
+        catch (Exception e) {
+            EntityResponse response = new EntityResponse<>();
+            response.setEntity("");
+            response.setStatuscode(HttpStatus.BAD_REQUEST.value());
+            response.setMessage("Error: " + e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+    }
+
 
 
 
