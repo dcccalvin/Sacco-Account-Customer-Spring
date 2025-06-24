@@ -1,0 +1,103 @@
+package ke.co.emtechhouse.accounts_service.Account;
+
+import ke.co.emtechhouse.accounts_service.Utils.EntityResponse;
+import ke.co.emtechhouse.accounts_service.Utils.RestTemplateConfig;
+import ke.co.emtechhouse.accounts_service.clients.CustomerClient;
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+@Slf4j
+public class AccountService {
+    private final AccountRepository accountRepository;
+    private final CustomerClient customerClient;
+
+    public AccountService(AccountRepository accountRepository, CustomerClient customerClient) {
+        this.accountRepository = accountRepository;
+        this.customerClient = customerClient;
+    }
+
+    public Account createAccount(Account account) {
+        if (!customerClient.isMemberExists(account.getMemberNumber())) {
+            throw new IllegalArgumentException("Member number not found in customer-service");
+        }
+
+        String accountNumber = generateAccountNumber(account.getProductCode(), account.getMemberNumber());
+        account.setAccountNumber(accountNumber);
+        return accountRepository.save(account);
+    }
+
+    private String generateAccountNumber(String productCode, String memberNumber) {
+        return productCode + "-" + memberNumber;
+    }
+
+    public EntityResponse getAllAccounts() {
+        EntityResponse response = new EntityResponse();
+        try {
+            List<Account> checkAccounts = accountRepository.findAll();
+
+            if (checkAccounts.isEmpty()) {
+                log.warn("No accounts found in the system.");
+                response.setStatuscode(HttpStatus.NOT_FOUND.value());
+                response.setMessage("No accounts found.");
+                response.setEntity("");
+                return response;
+            }
+
+            log.info("Retrieved [{}] account(s) from the database.", checkAccounts.size());
+            response.setStatuscode(HttpStatus.OK.value());
+            response.setMessage("Accounts retrieved successfully.");
+            response.setEntity(checkAccounts);
+            return response;
+
+        } catch (Exception e) {
+            log.error("Error while retrieving accounts: {}", e.getMessage(), e);
+            response.setMessage("ERROR: " + e.getMessage());
+            response.setEntity("");
+            response.setStatuscode(HttpStatus.BAD_REQUEST.value());
+            return response;
+        }
+    }
+
+    public EntityResponse getAllCustomerAccounts(String memberNumber){
+        EntityResponse response = new EntityResponse();
+        try {
+            if (!customerClient.isMemberExists(memberNumber)) {
+                response.setMessage(" Member number not found in customer-service: " + memberNumber);
+                response.setStatuscode(HttpStatus.NOT_FOUND.value());
+                response.setEntity("");
+                return response;
+            }
+            List<Account> checkMemberNumber = accountRepository.findByMemberNumber(memberNumber);
+            if (checkMemberNumber.isEmpty()){
+                response.setMessage("No account belonging to memberNumber"+memberNumber);
+                response.setStatuscode(HttpStatus.NOT_FOUND.value());
+                response.setEntity("");
+                return response;
+            }
+            response.setEntity(checkMemberNumber);
+            response.setStatuscode(HttpStatus.OK.value());
+            response.setMessage("Accounts for "+memberNumber+" found");
+            return response;
+        }
+        catch (Exception e) {
+            log.error("Error while retrieving accounts: {}", e.getMessage(), e);
+            response.setMessage("ERROR: " + e.getMessage());
+            response.setEntity("");
+            response.setStatuscode(HttpStatus.BAD_REQUEST.value());
+            return response;
+        }
+
+    }
+
+
+
+
+}
