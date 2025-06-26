@@ -134,7 +134,7 @@ public class AccountService {
         try{
             Optional<Account> checkId=accountRepository.findById(id);
             if(checkId.isEmpty()){
-                response.setMessage("Account wih Id "+ id+"cannott be found");
+                response.setMessage("Account with Id "+ id+"cannot be found");
                 response.setStatuscode(HttpStatus.NOT_FOUND.value());
                 response.setEntity("");
             }
