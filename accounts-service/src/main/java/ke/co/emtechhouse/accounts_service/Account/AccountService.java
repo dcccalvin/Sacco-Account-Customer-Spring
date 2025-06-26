@@ -77,7 +77,7 @@ public class AccountService {
             }
             List<Account> checkMemberNumber = accountRepository.findByMemberNumber(memberNumber);
             if (checkMemberNumber.isEmpty()){
-                response.setMessage("No account belonging to memberNumber"+memberNumber);
+                response.setMessage("No account belonging to memberNumber '"+memberNumber+"' ");
                 response.setStatuscode(HttpStatus.NOT_FOUND.value());
                 response.setEntity("");
                 return response;
