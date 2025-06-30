@@ -46,7 +46,7 @@ public class CustomerService {
             log.info("Modified successfully");
             response.setEntity(customerKycRepository.save(customerKyc));
             response.setStatusCode(HttpStatus.OK.value());
-            response.setMessage("c");
+            response.setMessage("Modified successfully");
             return response;
         }catch (Exception e){
             log.info("Error: "+e.getMessage());
