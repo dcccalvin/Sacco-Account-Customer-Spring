@@ -21,7 +21,7 @@ public class SwaggerConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("Custom Sacco Swagger API")
-                        .description("Accountt Service.")
+                        .description("Account Service.")
                         .version("1.0.0")
                         .contact(new Contact()
                                 .name("Calvin")
