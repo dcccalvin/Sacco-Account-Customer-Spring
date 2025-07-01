@@ -41,6 +41,7 @@ public class ReportController {
             response.setEntity(data);
             response.setStatusCode(HttpStatus.OK.value());
             response.setMessage("PDF generated succesfully");
+            log.info("Pdf Gnerated Succesfully: " + data);
             return response;
         }catch (Exception e){
             log.info("Error: "+e);
