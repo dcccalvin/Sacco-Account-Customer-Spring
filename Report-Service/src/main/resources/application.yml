@@ -6,3 +6,5 @@ spring:
     username: root
     password:
     driverClassName: com.mysql.cj.jdbc.Driver
+sacco:
+  reports_path: C:\Users\chuma\OneDrive\Desktop\e_n_m\EMT_MULTITENANT_SACCO\EMT_MULTITENANT_SACCO\Server\reports_service\reports\jrxmls\

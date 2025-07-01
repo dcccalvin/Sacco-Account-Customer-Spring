@@ -5,8 +5,11 @@ import ke.co.emtechhouse.Report_Service.Utils.EntityResponse;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jasperreports.engine.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.FileInputStream;
@@ -20,19 +23,25 @@ import java.util.Map;
 public class ReportController {
     @Autowired
     ReportService reportService;
-
-
+    @Value("${sacco.reports_path}")
+    private String path;
+    @Value("${spring.datasource.url}")
+    private String url;
+    @Value("${spring.datasource.username}")
+    private String username;
+    @Value("${spring.datasource.password}")
+    private String password;
 
 
     @PostMapping("/pdf")
-    public EntityResponse downloadPdf(@RequestBody ReportRequest reportRequestObject){
+    public ResponseEntity<?> downloadPdf(@RequestBody ReportRequest reportRequestObject){
 //        ReportRequest reportRequestObject = new Gson().fromJson(reportRequest,ReportRequest.class);
         EntityResponse response= new EntityResponse<>();
         log.info("Requestparams " + reportRequestObject);
 
         try{
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3307/account","root","");
-            JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream("C:\\Users\\chuma\\OneDrive\\Desktop\\e_n_m\\EMT_MULTITENANT_SACCO\\EMT_MULTITENANT_SACCO\\Server\\reports_service\\reports\\jrxmls\\account_details.jrxml"));
+            Connection connection = DriverManager.getConnection(url,username,password);
+            JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(path+reportRequestObject.getFileName()));
             Map<String,Object> parameters = reportService.setParameters(reportRequestObject);
             JasperPrint printReport = JasperFillManager.fillReport(compileReport,parameters,connection);
             byte[] data = JasperExportManager.exportReportToPdf(printReport);
@@ -42,7 +51,7 @@ public class ReportController {
             response.setStatusCode(HttpStatus.OK.value());
             response.setMessage("PDF generated succesfully");
             log.info("Pdf Gnerated Succesfully: " + data);
-            return response;
+            return ResponseEntity.ok().headers(headers).contentType(MediaType.APPLICATION_PDF).body(data);
         }catch (Exception e){
             log.info("Error: "+e);
             response.setEntity(null);
